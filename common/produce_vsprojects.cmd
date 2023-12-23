@@ -22,7 +22,7 @@ for %%i in (%*) do @(
     if "%%~i" == "--dev"       call :SetVar OPTIONS "--dev --sdk71"
     call :AppendVSVer VSVERSIONS "%%~i"
 )
-set DEFAULT_VSVERSIONS=2005 2019
+set DEFAULT_VSVERSIONS=2022
 echo %VSVERSIONS%
 if "%VSVERSIONS%" == "" set VSVERSIONS=%DEFAULT_VSVERSIONS%
 echo Generating for %VSVERSIONS%, options: %OPTIONS%
