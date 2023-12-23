@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{4BC52DC9-DB5E-518C-8833-23D344D8EA93}</UniqueIdentifier>
+      <UniqueIdentifier>{081EC6CE-980C-9FF9-E164-68B1EB4777D1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\0410.Italian">
-      <UniqueIdentifier>{C8D9C701-3B47-0922-116D-4122C5DDD24A}</UniqueIdentifier>
+    <Filter Include="Resource Files\040a.Spanish">
+      <UniqueIdentifier>{C02681AA-54B9-BCF3-E132-F2C5C44B1A0D}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded">
-      <UniqueIdentifier>{CCA9D317-5B97-751F-C26B-CCE40C7334E9}</UniqueIdentifier>
+      <UniqueIdentifier>{07A638B3-6914-B90D-2954-E6772DC9A2A2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..">
-      <UniqueIdentifier>{0897B035-E9B8-13CB-8298-099524DBC484}</UniqueIdentifier>
+      <UniqueIdentifier>{F8B09B5C-DE48-1C23-8E9B-8E7CDB9CF56B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..\..">
-      <UniqueIdentifier>{99E0C91C-F480-F71B-7A06-84687A03AD21}</UniqueIdentifier>
+      <UniqueIdentifier>{3F083A10-DD16-B01D-C48E-724467724B5A}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..\..\common">
-      <UniqueIdentifier>{F84837A3-DB7B-7118-C7EF-3A5836761B5C}</UniqueIdentifier>
+      <UniqueIdentifier>{F374AFDE-B0EA-2B6B-B444-5BE92A8D60AC}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\windirstat.rc2">
-      <Filter>Resource Files\0410.Italian</Filter>
+      <Filter>Resource Files\040a.Spanish</Filter>
     </None>
     <None Include="..\bitmap1.bmp">
       <Filter>Resource Files\embedded</Filter>
@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windirstat.rc">
-      <Filter>Resource Files\0410.Italian</Filter>
+      <Filter>Resource Files\040a.Spanish</Filter>
     </ResourceCompile>
     <ResourceCompile Include="..\..\..\common\version.rc">
       <Filter>Resource Files\embedded\..\..\common</Filter>

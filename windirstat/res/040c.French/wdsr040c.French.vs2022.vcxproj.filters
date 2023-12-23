@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{CB8AF061-B758-E3FB-3ECA-675C47CB7DCB}</UniqueIdentifier>
+      <UniqueIdentifier>{915BCD7E-C2A6-91B0-BD72-CE32633C6AE2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\0416.Portuguese_Brazil">
-      <UniqueIdentifier>{D5D081C8-F51C-FCBC-F0BF-D501BC1D7EF1}</UniqueIdentifier>
+    <Filter Include="Resource Files\040c.French">
+      <UniqueIdentifier>{0501B092-7B57-464E-FA36-0E4656EEB600}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded">
-      <UniqueIdentifier>{D5A2FE8B-DF52-9F86-BE1E-908CF4F12833}</UniqueIdentifier>
+      <UniqueIdentifier>{B621C87F-C8A8-3C78-7B03-BEF282B7A0C1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..">
-      <UniqueIdentifier>{C2DBC326-0970-ADA7-6CC9-76A057554BAF}</UniqueIdentifier>
+      <UniqueIdentifier>{57EA1D7B-710D-355C-3801-1177BF3BBA95}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..\..">
-      <UniqueIdentifier>{EFB553F1-3F65-7A33-6C18-0F237670F26D}</UniqueIdentifier>
+      <UniqueIdentifier>{5EC75529-32E9-C91C-0754-8FE7E328070F}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\embedded\..\..\common">
-      <UniqueIdentifier>{AE985EE1-CFFB-AD86-E1A0-ADE909D56C95}</UniqueIdentifier>
+      <UniqueIdentifier>{7AA54CEB-BD4A-1B9A-5F0B-EB770111C1F5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\windirstat.rc2">
-      <Filter>Resource Files\0416.Portuguese_Brazil</Filter>
+      <Filter>Resource Files\040c.French</Filter>
     </None>
     <None Include="..\bitmap1.bmp">
       <Filter>Resource Files\embedded</Filter>
@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windirstat.rc">
-      <Filter>Resource Files\0416.Portuguese_Brazil</Filter>
+      <Filter>Resource Files\040c.French</Filter>
     </ResourceCompile>
     <ResourceCompile Include="..\..\..\common\version.rc">
       <Filter>Resource Files\embedded\..\..\common</Filter>

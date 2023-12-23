@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -7,8 +7,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{025A9D90-4C61-4D34-8BEC-8A1A044B80EB}</ProjectGuid>
-    <RootNamespace>wdsr0416.Portuguese_Brazil</RootNamespace>
+    <ProjectGuid>{C7A5D1EC-35D3-4754-A815-2C527CACD584}</ProjectGuid>
+    <RootNamespace>wdsr040b.Finnish</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -16,7 +16,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -26,9 +26,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\..\build.vs2019\</OutDir>
-    <IntDir>..\..\..\intermediate\vs2019_$(ProjectName)_wdslng0416\</IntDir>
-    <TargetName>wdsr0416</TargetName>
+    <OutDir>..\..\..\build.vs2022\</OutDir>
+    <IntDir>..\..\..\intermediate\vs2022_$(ProjectName)_wdslng040b\</IntDir>
+    <TargetName>wdsr040b</TargetName>
     <TargetExt>.wdslng</TargetExt>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
@@ -49,14 +49,14 @@
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>WDS_RESLANG=0x0416;MODNAME=wdsr0416;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WDS_RESLANG=0x040b;MODNAME=wdsr040b;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\..;$(ProjectDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <OutputFile>$(OutDir)wdsr0416.wdslng</OutputFile>
-      <ImportLibrary>..\..\..\intermediate\vs2019_$(ProjectName)_wdslng0416\wdsr0416.wdslng</ImportLibrary>
+      <OutputFile>$(OutDir)wdsr040b.wdslng</OutputFile>
+      <ImportLibrary>..\..\..\intermediate\vs2022_$(ProjectName)_wdslng040b\wdsr040b.wdslng</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions>/noentry %(AdditionalOptions)</AdditionalOptions>
     </Link>
