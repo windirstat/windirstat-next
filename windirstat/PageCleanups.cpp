@@ -337,5 +337,5 @@ void CPageCleanups::OnBnClickedDown()
 
 void CPageCleanups::OnBnClickedHelpbutton()
 {
-    GetWDSApp()->DoContextHelp(IDH_UserDefinedCleanups);
+    CDirStatApp::Get()->LaunchHelp();
 }

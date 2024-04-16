@@ -37,15 +37,15 @@
     <Filter Include="Resource Files\Languages">
       <UniqueIdentifier>{ca41237d-3469-4146-909c-126f62a5c504}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Views">
+      <UniqueIdentifier>{0e125e15-73d4-4995-940a-0b8038f23bde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Views">
+      <UniqueIdentifier>{442ebfd0-7b2c-4c88-82fd-8aaac4efe37f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\IDB_NODES.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </None>
-    <None Include="res\IDB_JUNCTIONPOINT.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </None>
-    <None Include="res\license.rtf">
       <Filter>Resource Files\Resources</Filter>
     </None>
     <None Include="res\license.txt">
@@ -97,16 +97,10 @@
     <ClInclude Include="DirStatDoc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirStatView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FileFind.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GlobalHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HelpMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
@@ -157,10 +151,7 @@
     <ClInclude Include="Controls\ColorButton.h">
       <Filter>Header Files\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="Controls\GraphView.h">
-      <Filter>Header Files\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="Controls\MyImageList.h">
+    <ClInclude Include="Controls\IconImageList.h">
       <Filter>Header Files\Controls</Filter>
     </ClInclude>
     <ClInclude Include="Controls\OwnerDrawnListControl.h">
@@ -176,9 +167,6 @@
       <Filter>Header Files\Controls</Filter>
     </ClInclude>
     <ClInclude Include="Controls\TreeMap.h">
-      <Filter>Header Files\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="Controls\TypeView.h">
       <Filter>Header Files\Controls</Filter>
     </ClInclude>
     <ClInclude Include="Controls\XYSlider.h">
@@ -214,15 +202,39 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtensionListControl.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTreeView.h">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\ExtensionView.h">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\TreeMapView.h">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTreeControl.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTabbedView.h">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemDupe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDupeView.h">
+      <Filter>Header Files\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDupeControl.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\CommonHelpers.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="DirStatDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DirStatView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GlobalHelpers.cpp">
@@ -273,10 +285,7 @@
     <ClCompile Include="Controls\ColorButton.cpp">
       <Filter>Source Files\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="Controls\GraphView.cpp">
-      <Filter>Source Files\Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="Controls\MyImageList.cpp">
+    <ClCompile Include="Controls\IconImageList.cpp">
       <Filter>Source Files\Controls</Filter>
     </ClCompile>
     <ClCompile Include="Controls\OwnerDrawnListControl.cpp">
@@ -292,9 +301,6 @@
       <Filter>Source Files\Controls</Filter>
     </ClCompile>
     <ClCompile Include="Controls\TreeMap.cpp">
-      <Filter>Source Files\Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="Controls\TypeView.cpp">
       <Filter>Source Files\Controls</Filter>
     </ClCompile>
     <ClCompile Include="Controls\XYSlider.cpp">
@@ -324,6 +330,36 @@
     <ClCompile Include="CsvLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ExtensionListControl.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\TreeMapView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\ExtensionView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="FileTreeView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="FileTreeControl.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="FileTabbedView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemDupe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDupeView.cpp">
+      <Filter>Source Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDupeControl.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\Tracer.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="windirstat.rc">
@@ -338,15 +374,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\common\WinDirStat.ico" />
-    <Image Include="res\toolbar\ID_EDIT_COPY_CLIPBOARD.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
-    <Image Include="res\toolbar\ID_TREEMAP_ZOOMIN.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
-    <Image Include="res\toolbar\ID_TREEMAP_ZOOMOUT.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
     <Image Include="res\toolbar\IDB_CLEANUP_DELETE.bmp">
       <Filter>Resource Files\Resources</Filter>
     </Image>
@@ -374,9 +401,6 @@
     <Image Include="res\toolbar\IDB_TREEMAP_ZOOMOUT.bmp">
       <Filter>Resource Files\Resources</Filter>
     </Image>
-    <Image Include="res\toolbar\IDM_EDIT_COPY_CLIPBOARD.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
     <Image Include="res\toolbar\IDB_CLEANUP_EXPLORER_SELECT.bmp">
       <Filter>Resource Files\Resources</Filter>
     </Image>
@@ -393,12 +417,6 @@
       <Filter>Resource Files\Resources</Filter>
     </Image>
     <Image Include="res\toolbar\IDB_SCAN_RESUME.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
-    <Image Include="res\toolbar\IDB_SELECTION_EXPLORE.bmp">
-      <Filter>Resource Files\Resources</Filter>
-    </Image>
-    <Image Include="res\nodes\IDB_JUNCTION.ico">
       <Filter>Resource Files\Resources</Filter>
     </Image>
     <Image Include="res\nodes\IDI_EMPTY.ico">
@@ -455,6 +473,9 @@
       <Filter>Resource Files\Languages</Filter>
     </Text>
     <Text Include="res\langs\lang_cs.txt">
+      <Filter>Resource Files\Languages</Filter>
+    </Text>
+    <Text Include="res\langs\lang_zh.txt">
       <Filter>Resource Files\Languages</Filter>
     </Text>
   </ItemGroup>

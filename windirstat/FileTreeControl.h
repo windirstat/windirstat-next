@@ -1,4 +1,4 @@
-// HelpMap.h - Definition of contextual help ids
+// FileTreeControl.h - Declaration of CFileTreeControl and CFileTreeView
 //
 // WinDirStat - Directory Statistics
 // Copyright (C) 2003-2005 Bernhard Seifert
@@ -21,6 +21,26 @@
 
 #pragma once
 
-#define IDH_StartPage                   1001
-#define IDH_UserDefinedCleanups         1002
-#define IDH_Treemap                     1003
+#include "Item.h"
+#include "TreeListControl.h"
+
+class CFileTreeControl final : public CTreeListControl
+{
+public:
+    CFileTreeControl();
+    bool GetAscendingDefault(int column) override;
+    static CFileTreeControl* Get() { return m_singleton; }
+
+protected:
+
+    static CFileTreeControl * m_singleton;
+
+    void OnItemDoubleClick(int i) override;
+    void PrepareDefaultMenu(CMenu* menu, const CItem* item);
+
+    DECLARE_MESSAGE_MAP()
+    afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+    afx_msg void OnSetFocus(CWnd* pOldWnd);
+    afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+    afx_msg BOOL OnHeaderEndDrag(UINT, NMHDR* pNMHDR, LRESULT* pResult);
+};
