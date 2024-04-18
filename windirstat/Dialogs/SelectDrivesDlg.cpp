@@ -120,38 +120,17 @@ int CDriveItem::Compare(const CSortingListItem* baseOther, int subitem) const
 {
     const CDriveItem* other = reinterpret_cast<const CDriveItem*>(baseOther);
 
-    int r = 0;
-
     switch (subitem)
     {
-    case COL_NAME:
-        {
-            r = signum(GetPath().CompareNoCase(other->GetPath()));
-        }
-        break;
-    case COL_TOTAL:
-        {
-            r = usignum(m_totalBytes, other->m_totalBytes);
-        }
-        break;
-    case COL_FREE:
-        {
-            r = usignum(m_freeBytes, other->m_freeBytes);
-        }
-        break;
-    case COL_GRAPH:
-    case COL_PERCENTUSED:
-        {
-            r = signum(m_used - other->m_used);
-        }
-        break;
-    default:
-        {
-            ASSERT(0);
-        }
+        case COL_NAME: return signum(GetPath().CompareNoCase(other->GetPath()));
+        case COL_TOTAL: return usignum(m_totalBytes, other->m_totalBytes);
+        case COL_FREE: return usignum(m_freeBytes, other->m_freeBytes);
+        case COL_GRAPH:
+        case COL_PERCENTUSED: return signum(m_used - other->m_used);
+        default: ASSERT(FALSE);
     }
 
-    return r;
+    return 0;
 }
 
 int CDriveItem::GetImage() const
@@ -237,7 +216,7 @@ CStringW CDriveItem::GetText(int subitem) const
         break;
 
     default:
-        ASSERT(0);
+        ASSERT(FALSE);
     }
 
     return s;
@@ -396,14 +375,12 @@ void CDrivesList::OnLButtonDown(UINT /*nFlags*/ , CPoint/*point*/)
         lv.hdr.idFrom   = GetDlgCtrlID();
         lv.hdr.code = static_cast<UINT>(LVN_ITEMCHANGED);
         GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), reinterpret_cast<LPARAM>(&lv));
-
-        // no further action
     }
 }
 
 void CDrivesList::OnNMDblclk(NMHDR* /*pNMHDR*/, LRESULT* pResult)
 {
-    *pResult = 0;
+    *pResult = FALSE;
 
     CPoint point = GetCurrentMessage()->pt;
     ScreenToClient(&point);
@@ -435,7 +412,7 @@ void CDrivesList::OnLvnDeleteitem(NMHDR* pNMHDR, LRESULT* pResult)
 {
     const auto pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
     delete GetItem(pNMLV->iItem);
-    *pResult = 0;
+    *pResult = FALSE;
 }
 
 void CDrivesList::MeasureItem(LPMEASUREITEMSTRUCT mis)
@@ -470,7 +447,9 @@ void CSelectDrivesDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSelectDrivesDlg, CDialogEx)
     ON_BN_CLICKED(IDC_AFOLDER, OnBnClickedFolder)
     ON_BN_CLICKED(IDC_SOMEDRIVES, OnBnClickedSomeDrives)
+    ON_BN_CLICKED(IDC_SOMEDRIVES, OnBnClickedSomeDrives)
     ON_EN_CHANGE(IDC_BROWSE_FOLDER, OnEnChangeFolderName)
+    ON_COMMAND(IDC_SCAN_DUPLICATES, OnScanDuplicatesChecked)
     ON_WM_MEASUREITEM()
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_DRIVES, OnLvnItemchangedDrives)
     ON_BN_CLICKED(IDC_ALLDRIVES, OnBnClickedAllLocalDrives)
@@ -575,21 +554,16 @@ BOOL CSelectDrivesDlg::OnInitDialog()
     m_list.SortItems();
 
     m_radio = COptions::SelectDrivesRadio;
-    UpdateData(false);
+    UpdateData(FALSE);
 
-    switch (m_radio)
+    if (m_radio == RADIO_ALLLOCALDRIVES ||
+        m_radio == RADIO_AFOLDER)
     {
-    case RADIO_ALLLOCALDRIVES:
-    case RADIO_AFOLDER:
-        {
-            m_okButton.SetFocus();
-        }
-        break;
-    case RADIO_SOMEDRIVES:
-        {
-            m_list.SetFocus();
-        }
-        break;
+        m_okButton.SetFocus();
+    }
+    else if (m_radio == RADIO_SOMEDRIVES)
+    {
+        m_list.SetFocus();
     }
 
     UpdateButtons();
@@ -604,7 +578,7 @@ void CSelectDrivesDlg::OnOK()
     m_selectedDrives.clear();
     if (m_radio == RADIO_AFOLDER)
     {
-        m_folderName = getFullPathName_(m_folderName);
+        m_folderName = GetFullPathName(m_folderName);
         UpdateData(false);
     }
 
@@ -667,7 +641,7 @@ void CSelectDrivesDlg::UpdateButtons()
         break;
     default:
         {
-            ASSERT(0);
+            ASSERT(FALSE);
         }
     }
     m_okButton.EnableWindow(enableOk);
@@ -693,6 +667,11 @@ void CSelectDrivesDlg::OnEnChangeFolderName()
     UpdateButtons();
 }
 
+void CSelectDrivesDlg::OnScanDuplicatesChecked()
+{
+    UpdateButtons();
+}
+
 void CSelectDrivesDlg::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT mis)
 {
     if (nIDCtl == IDC_DRIVES)
@@ -709,10 +688,10 @@ void CSelectDrivesDlg::OnLvnItemchangedDrives(NMHDR* /*pNMHDR*/, LRESULT* pResul
 {
     m_radio = RADIO_SOMEDRIVES;
 
-    UpdateData(false);
+    UpdateData(FALSE);
     UpdateButtons();
 
-    *pResult = 0;
+    *pResult = FALSE;
 }
 
 void CSelectDrivesDlg::OnBnClickedAllLocalDrives()
@@ -809,7 +788,7 @@ int CALLBACK CSelectDrivesDlg::BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM l
     return 0;
 }
 
-CStringW CSelectDrivesDlg::getFullPathName_(LPCWSTR relativePath)
+CStringW CSelectDrivesDlg::GetFullPathName(LPCWSTR relativePath)
 {
     SmartPointer<LPWSTR> path(free, _wfullpath(nullptr, relativePath, 0));
     return path != nullptr ? static_cast<LPWSTR>(path) : relativePath;
