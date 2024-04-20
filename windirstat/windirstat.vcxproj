@@ -308,12 +308,11 @@
     <ClInclude Include="ModalShellApi.h" />
     <ClInclude Include="MountPoints.h" />
     <ClInclude Include="Options.h" />
-    <ClInclude Include="OsSpecific.h" />
     <ClInclude Include="PageAdvanced.h" />
     <ClInclude Include="PageCleanups.h" />
     <ClInclude Include="PageGeneral.h" />
-    <ClInclude Include="PageTreelist.h" />
-    <ClInclude Include="PageTreemap.h" />
+    <ClInclude Include="PageFileTree.h" />
+    <ClInclude Include="PageTreeMap.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="langs.h" />
@@ -367,16 +366,14 @@
     </ClCompile>
     <ClCompile Include="Options.cpp">
     </ClCompile>
-    <ClCompile Include="OsSpecific.cpp">
-    </ClCompile>
     <ClCompile Include="PageAdvanced.cpp" />
     <ClCompile Include="PageCleanups.cpp">
     </ClCompile>
     <ClCompile Include="PageGeneral.cpp">
     </ClCompile>
-    <ClCompile Include="PageTreelist.cpp">
+    <ClCompile Include="PageFileTree.cpp">
     </ClCompile>
-    <ClCompile Include="PageTreemap.cpp">
+    <ClCompile Include="PageTreeMap.cpp">
     </ClCompile>
     <ClCompile Include="Property.cpp" />
     <ClCompile Include="stdafx.cpp">
