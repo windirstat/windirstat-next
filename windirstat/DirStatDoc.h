@@ -114,8 +114,8 @@ protected:
 
     void UnlinkRoot();
     bool UserDefinedCleanupWorksForItem(USERDEFINEDCLEANUP* udc, const CItem* item);
-    void StartupCoordinator(std::vector<CItem*> items);
-    void ShutdownCoordinator(bool wait = true);
+    void StartScanningEngine(std::vector<CItem*> items);
+    void StopScanningEngine();
     void RefreshItem(const std::vector<CItem*>& item);
     void RefreshItem(CItem* item) { RefreshItem(std::vector{ item }); }
 
@@ -141,8 +141,8 @@ protected:
     CItem* PopReselectChild();
     void ClearReselectChildStack();
     bool IsReselectChildAvailable() const;
-    static bool DirectoryListHasFocus();
-    static bool DuplicateListHasFocus();
+    static bool FileTreeHasFocus();
+    static bool DupeListHasFocus();
     static std::vector<CItem *> GetAllSelected();
 
     bool m_ShowFreeSpace; // Whether to show the <Free Space> item
@@ -162,8 +162,7 @@ protected:
 
     CList<CItem*, CItem*> m_ReselectChildStack; // Stack for the "Re-select Child"-Feature
 
-    BlockingQueue<CItem*> queue;      // The scanning queue
-    std::vector<std::thread> threads; // For tracking threads
+    BlockingQueue<CItem*> queue;      // The scanning and thread queue
 
     DECLARE_MESSAGE_MAP()
     afx_msg void OnRefreshSelected();

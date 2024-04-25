@@ -357,7 +357,7 @@ int CItem::CompareSibling(const CTreeListItem* tlib, const int subitem) const
     }
 }
 
-int CItem::GetTreeListChildCount()const
+int CItem::GetTreeListChildCount() const
 {
     if (m_FolderInfo == nullptr) return 0;
     return static_cast<int>(GetChildren().size());
@@ -528,6 +528,7 @@ void CItem::AddChild(CItem* child, const bool addOnly)
 
     if (IsVisible() && IsExpanded())
     {
+        (void)GetImage();
         CMainFrame::Get()->InvokeInMessageThread([this, child]
         {
             CFileTreeControl::Get()->OnChildAdded(this, child);
@@ -931,11 +932,8 @@ void CItem::ScanItemsFinalize(CItem* item)
 
 void CItem::ScanItems(BlockingQueue<CItem*> * queue)
 {
-    while (CItem * item = queue->pop())
+    while (CItem * item = queue->Pop())
     {
-        // Used to trigger thread exit condition
-        if (item == nullptr) return;
-
         // Mark the time we started evaluating this node
         if (item->m_FolderInfo) item->m_FolderInfo->m_Tstart = static_cast<ULONG>(GetTickCount64() / 1000ull);
 
@@ -959,15 +957,15 @@ void CItem::ScanItems(BlockingQueue<CItem*> * queue)
                     item->UpwardAddFolders(1);
                     if (CItem* newitem = item->AddDirectory(finder); newitem->GetReadJobs() > 0)
                     {
-                        queue->push(newitem, false);
+                        queue->Push(newitem);
                     }
                 }
                 else
                 {
                     item->UpwardAddFiles(1);
                     CItem* newitem = item->AddFile(finder);
-
-                    CFileDupeControl::Get()->ProcessDuplicate(newitem);
+                    CFileDupeControl::Get()->ProcessDuplicate(newitem, queue);
+                    queue->WaitIfSuspended();
                 }
 
                 // Update pacman position
@@ -985,7 +983,7 @@ void CItem::ScanItems(BlockingQueue<CItem*> * queue)
             for (const auto & child : item->GetChildren())
             {
                 child->UpwardAddReadJobs(1);
-                queue->push(child, false);
+                queue->Push(child);
             }
         }
         item->UpwardSubtractReadJobs(1);
@@ -1257,7 +1255,7 @@ std::wstring CItem::UpwardGetPathWithoutBackslash() const
     {
         if (p->IsType(IT_DIRECTORY))
         {
-            path = p->m_Name + L"\\" + path;
+            path.insert(0, p->m_Name + L"\\");
         }
         else if (p->IsType(IT_FILE))
         {
@@ -1265,7 +1263,7 @@ std::wstring CItem::UpwardGetPathWithoutBackslash() const
         }
         else if (p->IsType(IT_DRIVE))
         {
-            path = PathFromVolumeName(p->m_Name) + L"\\" + path;
+            path.insert(0, PathFromVolumeName(p->m_Name) + L"\\");
         }
     }
 
@@ -1313,12 +1311,11 @@ void CItem::UpwardDrivePacman()
     }
 }
 
-std::wstring CItem::GetFileHash(bool const partial)
+std::wstring CItem::GetFileHash(ULONGLONG hashSizeLimit, BlockingQueue<CItem*>* queue)
 {
     // Initialize hash for this thread
-    constexpr auto BufferSizePartial = 128ul * 1024ul;
-    constexpr auto BufferSizeFull = 4ul * 1024ul * 1024ul;
-    thread_local std::vector<BYTE> FileBuffer(partial ? BufferSizePartial : BufferSizeFull);
+    constexpr auto maxBufferSize = 2ul * 1024ul * 1024ul;
+    thread_local std::vector<BYTE> FileBuffer(hashSizeLimit > 0 ? hashSizeLimit : maxBufferSize);
     thread_local std::vector<BYTE> Hash;
     thread_local SmartPointer<BCRYPT_HASH_HANDLE> HashHandle(BCryptDestroyHash);
     thread_local DWORD HashLength = 0;
@@ -1342,7 +1339,7 @@ std::wstring CItem::GetFileHash(bool const partial)
     {
         return {};
     }
-
+    
     // Hash data one read at a time
     DWORD iReadResult = 0;
     DWORD iHashResult = 0;
@@ -1353,7 +1350,8 @@ std::wstring CItem::GetFileHash(bool const partial)
     {
         UpwardDrivePacman();
         iHashResult = BCryptHashData(HashHandle, FileBuffer.data(), iReadBytes, 0);
-        if (iHashResult != 0 || partial) break;
+        if (iHashResult != 0 || hashSizeLimit > 0) break;
+        queue->WaitIfSuspended();
     }
 
     // Complete hash data
