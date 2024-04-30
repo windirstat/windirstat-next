@@ -153,7 +153,7 @@ void CDirStatDoc::DecodeSelection(const std::wstring& s, std::wstring& folder, s
         else
         {
             // Remove trailing backslash, if any and not drive-root.
-            if (!f.empty() && wds::strBackslash == f.back() && (f.size() != 3 || f[1] != wds::chrColon))
+            if (!f.empty() && wds::chrBackslash == f.back() && (f.size() != 3 || f[1] != wds::chrColon))
             {
                 f = f.substr(0, f.size() - 1);
             }
@@ -429,8 +429,8 @@ void CDirStatDoc::OpenItem(const CItem* item, const std::wstring & verb)
     ZeroMemory(&sei, sizeof(sei));
     sei.cbSize = sizeof(sei);
     sei.hwnd = *AfxGetMainWnd();
-    sei.lpVerb = verb.c_str();
-    sei.fMask = SEE_MASK_INVOKEIDLIST | SEE_MASK_IDLIST;
+    sei.lpVerb = verb.empty() ? nullptr : verb.c_str();
+    sei.fMask = SEE_MASK_INVOKEIDLIST | SEE_MASK_IDLIST | SEE_MASK_NOZONECHECKS;
     sei.lpIDList = pidl;
     sei.nShow = SW_SHOWNORMAL;
     ShellExecuteEx(&sei);

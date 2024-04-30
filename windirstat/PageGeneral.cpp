@@ -85,7 +85,6 @@ BOOL CPageGeneral::OnInitDialog()
         m_Combo.SetItemData(i, language);
         if (language == COptions::LanguageId)
         {
-            m_OriginalLanguage = i;
             m_Combo.SetCurSel(i);
         }
     }
@@ -98,8 +97,8 @@ void CPageGeneral::OnOK()
 {
     UpdateData();
 
-    const bool wdsChanged = static_cast<bool>(m_UseFallbackLocale) != COptions::UseFallbackLocale;
-    const bool lgChanged = static_cast<bool>(m_ListGrid) != COptions::ListGrid ||
+    const bool fallbackChanged = static_cast<bool>(m_UseFallbackLocale) != COptions::UseFallbackLocale;
+    const bool gridChanged = static_cast<bool>(m_ListGrid) != COptions::ListGrid ||
         static_cast<bool>(m_ListStripes) != COptions::ListStripes ||
         static_cast<bool>(m_ListFullRowSelection) != COptions::ListFullRowSelection;
 
@@ -114,11 +113,11 @@ void CPageGeneral::OnOK()
         AfxMessageBox(L"Could not toggle WinDirStat portable mode. Check your permissions.", MB_OK | MB_ICONERROR);
     }
 
-    if (lgChanged)
+    if (gridChanged)
     {
         GetDocument()->UpdateAllViews(nullptr, HINT_LISTSTYLECHANGED);
     }
-    if (wdsChanged)
+    if (fallbackChanged)
     {
         GetDocument()->UpdateAllViews(nullptr, HINT_NULL);
     }
@@ -136,7 +135,7 @@ void CPageGeneral::OnBnClickedSetModified()
 
 void CPageGeneral::OnCbnSelendokCombo()
 {
-    const int i = m_Combo.GetCurSel();
-    GetSheet()->SetLanguageChanged(i != m_OriginalLanguage);
+    const LANGID langid = static_cast<LANGID>(m_Combo.GetItemData(m_Combo.GetCurSel()));
+    GetSheet()->SetLanguageChanged(langid != COptions::LanguageId);
     SetModified();
 }

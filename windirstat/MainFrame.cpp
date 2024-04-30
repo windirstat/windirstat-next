@@ -904,13 +904,13 @@ void CMainFrame::UpdateCleanupMenu(CMenu* menu) const
     if (items == 1)
     {
         info = Localization::Format(IDS_ONEITEMss,  FormatBytes(bytes),
-            COptions::UseSizeSuffixes && bytes != 0 ? wds::strEmpty : (wds::strBlankSpace + GetSpec_Bytes()));
+            COptions::UseSizeSuffixes && bytes != 0 ? wds::strEmpty : (wds::chrBlankSpace + GetSpec_Bytes()));
     }
     else
     {
         info = Localization::Format(IDS_ONEITEMss, FormatCount(items).c_str(),
             FormatBytes(bytes).c_str(), COptions::UseSizeSuffixes
-            && bytes != 0 ? wds::strEmpty : (wds::strBlankSpace + GetSpec_Bytes()).c_str());
+            && bytes != 0 ? wds::strEmpty : (wds::chrBlankSpace + GetSpec_Bytes()).c_str());
     }
 
     const std::wstring s = Localization::Lookup(IDS_EMPTYRECYCLEBIN) + info;
@@ -935,14 +935,14 @@ void CMainFrame::QueryRecycleBin(ULONGLONG& items, ULONGLONG& bytes)
 
     const DWORD drives = ::GetLogicalDrives();
     DWORD mask = 0x00000001;
-    for (int i = 0; i < wds::iNumDriveLetters; i++, mask <<= 1)
+    for (std::size_t i = 0; i < wds::strAlpha.size(); i++, mask <<= 1)
     {
         if ((drives & mask) == 0)
         {
             continue;
         }
 
-        std::wstring s = std::wstring(1, wds::albet.at(i)) + L":\\";
+        std::wstring s = std::wstring(1, wds::strAlpha.at(i)) + L":\\";
         const UINT type = ::GetDriveType(s.c_str());
         if (type == DRIVE_UNKNOWN || type == DRIVE_NO_ROOT_DIR)
         {
@@ -1065,7 +1065,7 @@ void CMainFrame::SetSelectionMessageText()
         break;
     case LF_EXTENSIONLIST:
         {
-            SetMessageText(wds::strStar + GetDocument()->GetHighlightExtension());
+            SetMessageText(wds::chrStar + GetDocument()->GetHighlightExtension());
         }
         break;
     }
