@@ -390,8 +390,9 @@ short CItem::GetImageToCache() const
     {
         return GetIconImageList()->GetMountPointImage();
     }
-    if (CDirStatApp::Get()->GetReparseInfo()->IsSymbolicLink(longpath, m_Attributes) ||
-        CDirStatApp::Get()->GetReparseInfo()->IsJunction(longpath, m_Attributes))
+    if ((CDirStatApp::Get()->GetReparseInfo()->IsSymbolicLink(longpath, m_Attributes) ||
+        CDirStatApp::Get()->GetReparseInfo()->IsJunction(longpath, m_Attributes)) &&
+        !CDirStatApp::Get()->GetReparseInfo()->IsCloudLink(longpath, m_Attributes))
     {
         constexpr DWORD mask = FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM;
         const bool osFile = (GetAttributes() & mask) == mask;
@@ -1324,7 +1325,7 @@ std::wstring CItem::GetFileHash(ULONGLONG hashSizeLimit, BlockingQueue<CItem*>* 
     {
         BCRYPT_ALG_HANDLE AlgHandle = nullptr;
         DWORD ResultLength = 0;
-        if (BCryptOpenAlgorithmProvider(&AlgHandle, BCRYPT_SHA256_ALGORITHM, MS_PRIMITIVE_PROVIDER, BCRYPT_HASH_REUSABLE_FLAG) != 0 ||
+        if (BCryptOpenAlgorithmProvider(&AlgHandle, BCRYPT_SHA512_ALGORITHM, MS_PRIMITIVE_PROVIDER, BCRYPT_HASH_REUSABLE_FLAG) != 0 ||
             BCryptGetProperty(AlgHandle, BCRYPT_HASH_LENGTH, reinterpret_cast<PBYTE>(&HashLength), sizeof(HashLength), &ResultLength, 0) != 0 ||
             BCryptCreateHash(AlgHandle, &HashHandle, nullptr, 0, nullptr, 0, BCRYPT_HASH_REUSABLE_FLAG) != 0)
         {
