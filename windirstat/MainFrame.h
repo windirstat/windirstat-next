@@ -172,7 +172,8 @@ protected:
     bool IsScanSuspended() const;
 
     void UpdateProgress();
-    void AppendUserDefinedCleanups(CMenu* menu) const;
+    void UpdateDynamicMenuItems(CMenu* menu) const;
+    std::vector<CItem*> GetAllSelectedInFocus() const;
 
     void SetLogicalFocus(LOGICAL_FOCUS lf);
     LOGICAL_FOCUS GetLogicalFocus() const;

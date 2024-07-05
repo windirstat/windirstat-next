@@ -36,6 +36,7 @@
 #include "PageTreeMap.h"
 #include "PageGeneral.h"
 #include "MainFrame.h"
+#include <CommonHelpers.h>
 #include <common/MdExceptions.h>
 
 #include <format>
@@ -382,6 +383,7 @@ CMainFrame::CMainFrame() :
       , m_Splitter(COptions::MainSplitterPos.Ptr())
 {
     s_Singleton = this;
+    m_bAutoMenuEnable = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -447,6 +449,7 @@ void CMainFrame::SetProgressComplete() // called by CDirStatDoc
     DestroyProgress();
     GetDocument()->SetTitlePrefix(wds::strEmpty);
     SetMessageText(Localization::Lookup(IDS_IDLEMESSAGE));
+    CFileTreeControl::Get()->SortItems();
 }
 
 bool CMainFrame::IsScanSuspended() const
@@ -807,15 +810,9 @@ void CMainFrame::OnTimer(const UINT_PTR nIDEvent)
         firstRun = false;
     }
 
-    // Determine whether we should be doing a fast UI update or not
-    static unsigned int updateCounter = 0;
-    const bool doSlowUpdate = updateCounter % 15 == 0;
-    const bool doFastUpdate = GetDocument()->HasRootItem() && (doSlowUpdate ||
-        !GetDocument()->IsRootDone() && !IsScanSuspended());
-    updateCounter++;
-
     // UI updates that do not need to processed frequently
-    if (doSlowUpdate)
+    static unsigned int updateCounter = 0;
+    if (updateCounter++ % 15 == 0)
     {
         // Update memory usage
         SetStatusPaneText(ID_INDICATOR_MEMORYUSAGE_INDEX, CDirStatApp::GetCurrentProcessMemoryInfo());
@@ -825,7 +822,7 @@ void CMainFrame::OnTimer(const UINT_PTR nIDEvent)
     }
 
     // UI updates that do need to processed frequently
-    if (doFastUpdate)
+    if (!GetDocument()->IsRootDone() && !IsScanSuspended())
     {
         // Update the visual progress on the bottom of the screen
         UpdateProgress();
@@ -887,7 +884,7 @@ void CMainFrame::OnInitMenuPopup(CMenu* pPopupMenu, const UINT nIndex, const BOO
     if (bSysMenu) return;
     
     CStringW menuText;
-    GetMenu()->GetMenuStringW(nIndex, menuText, MF_BYPOSITION);
+    pPopupMenu->GetMenuStringW(nIndex, menuText, MF_BYPOSITION);
     if (_wcsicmp(menuText.GetString(), Localization::Lookup(IDS_MENU_CLEANUP).c_str()) == 0)
     {
         UpdateCleanupMenu(pPopupMenu);
@@ -925,7 +922,7 @@ void CMainFrame::UpdateCleanupMenu(CMenu* menu) const
         menu->RemoveMenu(i, MF_BYPOSITION);
     }
 
-    AppendUserDefinedCleanups(menu);
+    UpdateDynamicMenuItems(menu);
 }
 
 void CMainFrame::QueryRecycleBin(ULONGLONG& items, ULONGLONG& bytes)
@@ -968,8 +965,45 @@ void CMainFrame::QueryRecycleBin(ULONGLONG& items, ULONGLONG& bytes)
     }
 }
 
-void CMainFrame::AppendUserDefinedCleanups(CMenu* menu) const
+std::vector<CItem*> CMainFrame::GetAllSelectedInFocus() const
 {
+    return GetLogicalFocus() == LF_DUPELIST ? CFileDupeControl::Get()->GetAllSelected<CItem>() :
+        CFileTreeControl::Get()->GetAllSelected<CItem>();
+}
+
+void CMainFrame::UpdateDynamicMenuItems(CMenu* menu) const
+{
+    const auto& items = GetAllSelectedInFocus();
+
+    // get list of paths from items
+    std::vector<std::wstring> paths;
+    for (auto& item : items) paths.push_back(item->GetPath());
+
+    // locate submenu
+    CMenu* explorerMenu = nullptr;
+    for (int i = 0; i < menu->GetMenuItemCount(); i++)
+    {
+        CStringW menuString;
+        if (menu->GetMenuStringW(i, menuString, MF_BYPOSITION) > 0 &&
+            _wcsicmp(menuString, Localization::Lookup(IDS_POPUP_TREE_EXPLORER_MENU).c_str()) == 0)
+        {
+            explorerMenu = menu->GetSubMenu(i);
+            break;
+        }
+    }   
+
+    // cleanup old items
+    while (explorerMenu->GetMenuItemCount() > 0)
+        explorerMenu->DeleteMenu(0, MF_BYPOSITION);
+
+    // append menu items
+    if (!paths.empty())
+    {
+        CComPtr<IContextMenu> contextMenu = GetContextMenu(CMainFrame::Get()->GetSafeHwnd(), paths);
+        contextMenu->QueryContextMenu(explorerMenu->GetSafeHmenu(), 0,
+            CONTENT_MENU_MINCMD, CONTENT_MENU_MAXCMD, CMF_NORMAL);
+    }
+
     bool bHasItem = false;
     for (size_t iCurrent = 0; iCurrent < COptions::UserDefinedCleanups.size(); iCurrent++)
     {
@@ -979,7 +1013,6 @@ void CMainFrame::AppendUserDefinedCleanups(CMenu* menu) const
         std::wstring string = std::vformat(Localization::Lookup(IDS_UDCsCTRLd),
             std::make_wformat_args(udc.Title.Obj(), iCurrent));
 
-        const auto& items = CFileTreeControl::Get()->GetAllSelected<CItem>();
         bool udcValid = GetLogicalFocus() == LF_FILETREE && !items.empty();
         if (udcValid) for (const auto& item : items)
         {

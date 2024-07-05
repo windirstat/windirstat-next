@@ -42,7 +42,7 @@ bool CFileDupeControl::GetAscendingDefault(const int column)
 {
     return column == COL_ITEMDUP_SIZE_PHYSICAL ||
         column == COL_ITEMDUP_SIZE_LOGICAL ||
-        COL_ITEMDUP_LASTCHANGE;
+        column == COL_ITEMDUP_LASTCHANGE;
 }
 
 #pragma warning(push)
@@ -72,12 +72,12 @@ void CFileDupeControl::OnContextMenu(CWnd* /*pWnd*/, const CPoint pt)
     const CRect rcTitle = item->GetTitleRect() + rc.TopLeft();
 
     CMenu menu;
-    menu.LoadMenu(IDR_POPUPLIST);
+    menu.LoadMenu(IDR_POPUP_TREE);
     Localization::UpdateMenu(menu);
     CMenu* sub = menu.GetSubMenu(0);
 
     PrepareDefaultMenu(sub, static_cast<CItemDupe*>(item));
-    CMainFrame::Get()->AppendUserDefinedCleanups(sub);
+    CMainFrame::Get()->UpdateDynamicMenuItems(sub);
 
     // Show popup menu and act accordingly.
     //
