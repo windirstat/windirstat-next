@@ -44,6 +44,7 @@
 #include <fstream>
 #include <ranges>
 #include <stack>
+#include <array>
 
 CDirStatDoc* _theDocument;
 
@@ -62,6 +63,9 @@ CDirStatDoc::CDirStatDoc() :
     _theDocument = this;
 
     VTRACE(L"sizeof(CItem) = {}", sizeof(CItem));
+    VTRACE(L"sizeof(CTreeListItem) = {}", sizeof(CTreeListItem));
+    VTRACE(L"sizeof(CTreeMap::Item) = {}", sizeof(CTreeMap::Item));
+    VTRACE(L"sizeof(COwnerDrawnListItem) = {}", sizeof(COwnerDrawnListItem));
 }
 
 CDirStatDoc::~CDirStatDoc()
@@ -78,8 +82,8 @@ std::wstring CDirStatDoc::EncodeSelection(const RADIO radio, const std::wstring&
     std::wstring ret;
     switch (radio)
     {
-    case RADIO_ALLLOCALDRIVES:
-    case RADIO_SOMEDRIVES:
+    case RADIO_TARGET_DRIVES_ALL:
+    case RADIO_TARGET_DRIVES_SUBSET:
         {
             for (std::size_t i = 0; i < drives.size(); i++)
             {
@@ -92,7 +96,7 @@ std::wstring CDirStatDoc::EncodeSelection(const RADIO radio, const std::wstring&
         }
         break;
 
-    case RADIO_AFOLDER:
+    case RADIO_TARGET_FOLDER:
         {
             ret = folder;
         }
@@ -1266,7 +1270,8 @@ void CDirStatDoc::OnCleanupCompress(UINT id)
 void CDirStatDoc::OnScanSuspend()
 {
     // Wait for system to fully shutdown
-    queue.SuspendExecution();
+    for (auto& [_, queue] : queues)
+        queue.SuspendExecution();
 
     // Mark as suspended
     if (CMainFrame::Get() != nullptr)
@@ -1275,7 +1280,8 @@ void CDirStatDoc::OnScanSuspend()
 
 void CDirStatDoc::OnScanResume()
 {
-    queue.ResumeExecution();
+    for (auto& [_, queue] : queues)
+        queue.ResumeExecution();
 
     if (CMainFrame::Get() != nullptr)
         CMainFrame::Get()->SuspendState(false);
@@ -1283,7 +1289,11 @@ void CDirStatDoc::OnScanResume()
 
 void CDirStatDoc::OnScanStop()
 {
-    queue.CancelExecution();
+    // Stop queues from executing
+    for (auto& [_, queue] : queues)
+        queue.CancelExecution();
+    queues.clear();
+
     OnScanResume();
 }
 
@@ -1356,6 +1366,13 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
         static std::shared_mutex mutex;
         std::lock_guard lock(mutex);
 
+        // If scanning drive(s) just rescan the child nodes
+        if (items.size() == 1 && items.at(0)->IsType(IT_MYCOMPUTER))
+        {
+            items.at(0)->ResetScanStartTime();
+            items = items.at(0)->GetChildren();
+        }
+
         const auto selectedItems = GetAllSelected();
         using VisualInfo = struct { bool wasExpanded; bool isSelected; int oldScrollPosition; };
         std::unordered_map<CItem *,VisualInfo> visualInfo;
@@ -1413,7 +1430,7 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
         }
 
         // Add items to processing queue
-        for (const auto item : std::vector(items))
+        for (const auto & item : items)
         {
             // Skip any items we should not follow
             if (!item->IsType(ITF_ROOTITEM) && !CDirStatApp::Get()->IsFollowingAllowed(item->GetPath(), item->GetAttributes()))
@@ -1423,32 +1440,49 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
 
             item->UpwardAddReadJobs(1);
             item->UpwardSetUndone();
-            queue.Push(item);
+
+            // Create status progress bar
+            CMainFrame::Get()->InvokeInMessageThread([]
+            {
+                CMainFrame::Get()->UpdateProgress();
+            });
+
+            // Separate into separate queues per drive
+            std::array<WCHAR, MAX_PATH> pathName;
+            if (GetVolumePathName(item->GetPathLong().c_str(),
+                pathName.data(), static_cast<DWORD>(pathName.size())) != 0)
+            {
+                queues[pathName.data()].Push(item);
+            }
+            else ASSERT(FALSE);
         }
 
         // Create subordinate threads if there is work to do
-        if (queue.HasItems())
+        for (auto& [_, queue] : queues)
         {
-            queue.StartThreads(COptions::ScanningThreads, [this]()
+            queue.StartThreads(COptions::ScanningThreads, [&queue]()
             {
                 CItem::ScanItems(&queue);
             });
+        }
 
-            // Wait for all threads to run out of work
-            if (!queue.WaitForCompletionOrCancellation())
+        // Wait for all threads to run out of work
+        bool do_completion = false;
+        for (auto& [_, queue] : queues)
+            do_completion = queue.WaitForCompletionOrCancellation();
+        if (!do_completion)
+        {
+            // Sorting and other finalization tasks
+            CItem::ScanItemsFinalize(GetRootItem());
+
+            // Exit here and stop progress if drained by an outside actor
+            CMainFrame::Get()->InvokeInMessageThread([]
             {
-                // Sorting and other finalization tasks
-                CItem::ScanItemsFinalize(GetRootItem());
-
-                // Exit here and stop progress if drained by an outside actor
-                CMainFrame::Get()->InvokeInMessageThread([]
-                {
-                    CMainFrame::Get()->SetProgressComplete();
-                    CMainFrame::Get()->MinimizeTreeMapView();
-                    CMainFrame::Get()->MinimizeExtensionView();
-                });
-                return;
-            }
+                CMainFrame::Get()->SetProgressComplete();
+                CMainFrame::Get()->MinimizeTreeMapView();
+                CMainFrame::Get()->MinimizeExtensionView();
+            });
+            return;
         }
 
         // Restore unknown and freespace items

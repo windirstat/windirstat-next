@@ -1,4 +1,4 @@
-﻿# WinDirStat - Windows Directory Statistics
+# WinDirStat - Windows Directory Statistics
 
 ## Copyright and licenses
 
@@ -14,18 +14,18 @@ The documentation/help is distributed under the terms of the GNU FDL.
 than v2 at this moment.
 
 The logo and all derivatives are available under the terms of the Creative
-Commons license [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+Commons license [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
 ## Description
 
-WinDirStat is a program that allows you to find disk space hogs at a glance.
+WinDirStat is a program that allows you to find drive space hogs at a glance.
 It achieves that by displaying a drive, drives or directories in a [treemap](https://en.wikipedia.org/wiki/Treemap)
 that assigns bigger areas to bigger files and directories. Making those areas
 visually separate by coloring and other means allows you to see literally at
 a glance what the space hogs are and where to dig deeper.
 
 The directory tree is simultaneously shown as a tree list and as a treemap.
-One can effortlessly gain an impression of the proportions on the hard disk(s).
+One can effortlessly gain an impression of the proportions on the drive(s).
 
 ### Major features
 
@@ -40,7 +40,7 @@ One can effortlessly gain an impression of the proportions on the hard disk(s).
 ### Background
 
 The original author of WinDirStat was Bernhard Seifert and it was inspired by
-[KDirStat](http://kdirstat.sourceforge.net/) and [SequoiaView](http://w3.win.tue.nl/nl/onderzoek/onderzoek_informatica/visualization/sequoiaview/).
+[KDirStat](https://kdirstat.sourceforge.net/) and [SequoiaView](https://www.win.tue.nl/sequoiaview/).
 Design and many details are based on KDirStat, so WinDirStat is "a KDirStat re-programmed for MS Windows".
 
 ### WinDirStat Alternatives on other operating systems
@@ -51,8 +51,8 @@ treemaps for a variety of visualization needs.
 The [FLOSS](https://en.wikipedia.org/wiki/Alternative_terms_for_free_software) alternatives for other operating systems are thus:
 
 * [QDirStat](https://github.com/shundhammer/qdirstat) (Linux and virtually any \*nix that runs KDE/X11)
-* [Disk Inventory X](http://www.derlien.com/) (OS X)
-* [GrandPerspective](http://grandperspectiv.sourceforge.net/) (OS X)
+* [Disk Inventory X](https://www.derlien.com/) (OS X)
+* [GrandPerspective](https://grandperspectiv.sourceforge.net/) (OS X)
 
 We're not aware of an alternative using treemaps for Windows at this moment, but ...
 
@@ -87,9 +87,9 @@ The [logo](https://windirstat.net/logo.html) was generously designed and contrib
 We currently have:
 
 * a [website](https://windirstat.net/)
-* a [blog](http://blog.windirstat.net/)
+* a [blog](https://blog.windirstat.net/)
 * are on Twitter as [@windirstat](https://twitter.com/windirstat)
-* have a SubReddit [r/WinDirStat](http://www.reddit.com/r/WinDirStat/)
+* have a SubReddit [r/WinDirStat](https://www.reddit.com/r/WinDirStat/)
 
 Find a more up-to-date list of links on the website and the blog at any point
 in time.
