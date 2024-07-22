@@ -36,15 +36,14 @@ class COwnerDrawnListControl;
 class COwnerDrawnListItem : public CSortingListItem
 {
 public:
-    COwnerDrawnListItem()          = default;
-    virtual ~COwnerDrawnListItem() = default;
+    COwnerDrawnListItem() = default;
 
     // This text is drawn, if DrawSubitem returns false
     std::wstring GetText(int subitem) const override = 0;
     // This color is used for the  current item
     virtual COLORREF GetItemTextColor() const
     {
-        return ::GetSysColor(COLOR_WINDOWTEXT);
+        return GetSysColor(COLOR_WINDOWTEXT);
     }
 
     // Return value is true, if the item draws itself.

@@ -162,7 +162,7 @@ void COptions::SetTreeMapOptions(const CTreeMap::Options& options)
     TreeMapLightSourceX = TreeMapOptions.GetLightSourceXPercent();
     TreeMapLightSourceY = TreeMapOptions.GetLightSourceYPercent();
 
-    GetDocument()->UpdateAllViews(nullptr, HINT_TREEMAPSTYLECHANGED);
+    CDirStatDoc::GetDocument()->UpdateAllViews(nullptr, HINT_TREEMAPSTYLECHANGED);
 }
 
 void COptions::PreProcessPersistedSettings()
@@ -208,7 +208,7 @@ void COptions::PostProcessPersistedSettings()
     {
         if (UserDefinedCleanups[i].Title.Obj().empty() || UserDefinedCleanups[i].VirginTitle)
         {
-            UserDefinedCleanups[i].Title = Localization::Format(IDS_USERDEFINEDCLEANUPd, i);
+            UserDefinedCleanups[i].Title = Localization::Format(IDS_USER_DEFINED_CLEANUPd, i);
         }
     }
 }

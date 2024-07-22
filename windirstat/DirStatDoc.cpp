@@ -46,13 +46,6 @@
 #include <stack>
 #include <array>
 
-CDirStatDoc* _theDocument;
-
-CDirStatDoc* GetDocument()
-{
-    return _theDocument;
-}
-
 IMPLEMENT_DYNCREATE(CDirStatDoc, CDocument)
 
 CDirStatDoc::CDirStatDoc() :
@@ -72,6 +65,12 @@ CDirStatDoc::~CDirStatDoc()
 {
     delete m_RootItem;
     _theDocument = nullptr;
+}
+
+CDirStatDoc* CDirStatDoc::_theDocument = nullptr;
+CDirStatDoc* CDirStatDoc::GetDocument()
+{
+    return _theDocument;
 }
 
 // Encodes a selection from the CSelectDrivesDlg into a string which can be routed as a pseudo
@@ -759,7 +758,7 @@ void CDirStatDoc::CallUserDefinedCleanup(const bool isDirectory, const std::wstr
         directory.c_str(), &si, &pi))
     {
         MdThrowStringException(Localization::Format(IDS_COULDNOTCREATEPROCESSssss,
-            app, cmdline, directory, MdGetWinErrorText(static_cast<HRESULT>(::GetLastError()))));
+            app, cmdline, directory, MdGetWinErrorText(static_cast<HRESULT>(GetLastError()))));
         return;
     }
 
@@ -907,6 +906,23 @@ void CDirStatDoc::OnUpdateCentralHandler(CCmdUI* pCmdUI)
     pCmdUI->Enable(allow); 
 }
 
+void CDirStatDoc::OnUpdateCompressionHandler(CCmdUI* pCmdUI)
+{
+    // Defer to standard update handler for initial value
+    OnUpdateCentralHandler(pCmdUI);
+    if (pCmdUI->m_pMenu == nullptr) return;
+
+    // See if each path supports available compression options
+    const UINT flag = pCmdUI->m_pMenu->GetMenuState(pCmdUI->m_nID, MF_BYCOMMAND);
+    bool allow = (flag & (MF_DISABLED | MF_GRAYED)) == 0;
+    for (const auto& item : GetAllSelected())
+    {
+        allow &= CompressFileAllowed(item->GetPath(),
+            CompressionIdToAlg(pCmdUI->m_nID));
+    }
+    pCmdUI->Enable(allow);
+}
+
 #define ON_COMMAMD_UPDATE_WRAPPER(x,y) ON_COMMAND(x, y) ON_UPDATE_COMMAND_UI(x, OnUpdateCentralHandler)
 BEGIN_MESSAGE_MAP(CDirStatDoc, CDocument) 
     ON_COMMAMD_UPDATE_WRAPPER(ID_REFRESH_SELECTED, OnRefreshSelected)
@@ -931,7 +947,7 @@ BEGIN_MESSAGE_MAP(CDirStatDoc, CDocument)
     ON_COMMAMD_UPDATE_WRAPPER(ID_TREEMAP_RESELECT_CHILD, OnTreeMapReselectChild)
     ON_COMMAMD_UPDATE_WRAPPER(ID_CLEANUP_OPEN_SELECTED, OnCleanupOpenTarget)
     ON_COMMAMD_UPDATE_WRAPPER(ID_CLEANUP_PROPERTIES, OnCleanupProperties)
-    ON_UPDATE_COMMAND_UI_RANGE(ID_COMPRESS_NONE, ID_COMPRESS_LZX, OnUpdateCentralHandler)
+    ON_UPDATE_COMMAND_UI_RANGE(ID_COMPRESS_NONE, ID_COMPRESS_LZX, OnUpdateCompressionHandler)
     ON_COMMAND_RANGE(ID_COMPRESS_NONE, ID_COMPRESS_LZX, OnCleanupCompress)
     ON_COMMAMD_UPDATE_WRAPPER(ID_SCAN_RESUME, OnScanResume)
     ON_COMMAMD_UPDATE_WRAPPER(ID_SCAN_SUSPEND, OnScanSuspend)
@@ -1245,7 +1261,7 @@ void CDirStatDoc::OnCleanupProperties()
     }
 }
 
-void CDirStatDoc::OnCleanupCompress(UINT id)
+CompressionAlgorithm CDirStatDoc::CompressionIdToAlg(UINT id)
 {
     const std::unordered_map<UINT, CompressionAlgorithm> compressionMap =
     {
@@ -1257,11 +1273,17 @@ void CDirStatDoc::OnCleanupCompress(UINT id)
         { ID_COMPRESS_LZX, CompressionAlgorithm::LZX }
     };
 
+    return compressionMap.at(id);
+}
+
+void CDirStatDoc::OnCleanupCompress(UINT id)
+{
     CWaitCursor wc;
     const auto& items = GetAllSelected();
     for (const auto& item : items)
     {
-        CompressFile(item->GetPath(), compressionMap.at(id));
+        const auto alg = (CompressionIdToAlg(id));
+        CompressFile(item->GetPathLong(), alg);
         item->UpdateStatsFromDisk();
         UpdateAllViews(nullptr);
     }
@@ -1270,8 +1292,8 @@ void CDirStatDoc::OnCleanupCompress(UINT id)
 void CDirStatDoc::OnScanSuspend()
 {
     // Wait for system to fully shutdown
-    for (auto& [_, queue] : queues)
-        queue.SuspendExecution();
+    for (auto& queue : m_queues | std::views::values)
+        ProcessMessagesUntilSignaled([&queue] { queue.SuspendExecution(); });
 
     // Mark as suspended
     if (CMainFrame::Get() != nullptr)
@@ -1280,7 +1302,7 @@ void CDirStatDoc::OnScanSuspend()
 
 void CDirStatDoc::OnScanResume()
 {
-    for (auto& [_, queue] : queues)
+    for (auto& queue : m_queues | std::views::values)
         queue.ResumeExecution();
 
     if (CMainFrame::Get() != nullptr)
@@ -1289,10 +1311,19 @@ void CDirStatDoc::OnScanResume()
 
 void CDirStatDoc::OnScanStop()
 {
-    // Stop queues from executing
-    for (auto& [_, queue] : queues)
-        queue.CancelExecution();
-    queues.clear();
+    // Stop m_queues from executing
+    for (auto& queue : m_queues | std::views::values)
+        ProcessMessagesUntilSignaled([&queue] { queue.CancelExecution(); });
+
+    // Wait for wrapper thread to complete
+    if (m_thread != nullptr)
+    {
+        CWaitCursor waitCursor;
+        ProcessMessagesUntilSignaled([this] { m_thread->join(); });
+        delete m_thread;
+        m_thread = nullptr;
+        m_queues.clear();
+    }
 
     OnScanResume();
 }
@@ -1360,7 +1391,7 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
 
     // Start a thread so we do not hang the message loop
     // Lambda captures assume document exists for duration of thread
-    std::thread([this,items] () mutable
+    m_thread = new std::thread([this,items] () mutable
     {
         // Wait for other threads to finish if this was scheduled in parallel
         static std::shared_mutex mutex;
@@ -1447,18 +1478,18 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
                 CMainFrame::Get()->UpdateProgress();
             });
 
-            // Separate into separate queues per drive
+            // Separate into separate m_queues per drive
             std::array<WCHAR, MAX_PATH> pathName;
             if (GetVolumePathName(item->GetPathLong().c_str(),
                 pathName.data(), static_cast<DWORD>(pathName.size())) != 0)
             {
-                queues[pathName.data()].Push(item);
+                m_queues[pathName.data()].Push(item);
             }
             else ASSERT(FALSE);
         }
 
         // Create subordinate threads if there is work to do
-        for (auto& [_, queue] : queues)
+        for (auto& queue : m_queues | std::views::values)
         {
             queue.StartThreads(COptions::ScanningThreads, [&queue]()
             {
@@ -1467,9 +1498,9 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
         }
 
         // Wait for all threads to run out of work
-        bool do_completion = false;
-        for (auto& [_, queue] : queues)
-            do_completion = queue.WaitForCompletionOrCancellation();
+        bool do_completion = true;
+        for (auto& queue : m_queues | std::views::values)
+            do_completion &= queue.WaitForCompletionOrCancellation();
         if (!do_completion)
         {
             // Sorting and other finalization tasks
@@ -1522,5 +1553,5 @@ void CDirStatDoc::StartScanningEngine(std::vector<CItem*> items)
             CMainFrame::Get()->GetTreeMapView()->SuspendRecalculationDrawing(false);
             CMainFrame::Get()-> UnlockWindowUpdate();
         });
-    }).detach();
+    });
 }

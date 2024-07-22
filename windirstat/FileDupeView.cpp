@@ -23,7 +23,6 @@
 #include "WinDirStat.h"
 #include "DirStatDoc.h"
 #include "MainFrame.h"
-#include <common/CommonHelpers.h>
 #include "FileDupeView.h"
 #include "GlobalHelpers.h"
 #include "Localization.h"
@@ -63,7 +62,7 @@ END_MESSAGE_MAP()
 void CFileDupeView::OnSize(const UINT nType, const int cx, const int cy)
 {
     CView::OnSize(nType, cx, cy);
-    if (::IsWindow(m_Control.m_hWnd))
+    if (IsWindow(m_Control.m_hWnd))
     {
         CRect rc(0, 0, cx, cy);
         m_Control.MoveWindow(rc);
@@ -78,7 +77,7 @@ int CFileDupeView::OnCreate(const LPCREATESTRUCT lpCreateStruct)
     }
 
     constexpr RECT rect = {0, 0, 0, 0};
-    VERIFY(m_Control.CreateEx(0, WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, rect, this, ID_WDS_CONTROL));
+    VERIFY(m_Control.CreateExtended(0, WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, rect, this, ID_WDS_CONTROL));
 
     m_Control.ShowGrid(COptions::ListGrid);
     m_Control.ShowStripes(COptions::ListStripes);

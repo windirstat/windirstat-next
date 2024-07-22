@@ -83,17 +83,17 @@ static FILETIME FromTimeString(const std::wstring & s)
     // Parse date string
     std::wistringstream in{ s };
     std::chrono::file_clock::time_point tp;
-    in >> std::chrono::parse(L"%Y-%m-%dT%H:%M:%S%Z", tp);
+    in >> parse(L"%Y-%m-%dT%H:%M:%S%Z", tp);
 
     // Adjust time divisor to 100ns 
     const auto tmp = std::chrono::duration_cast<std::chrono::duration<int64_t,
                                                                       std::ratio_multiply<std::hecto, std::nano>>>(tp.time_since_epoch()).count();
 
     // Load into file time structure
-    FILETIME ft{};
-    ft.dwLowDateTime = static_cast<ULONG>(tmp);
-    ft.dwHighDateTime = tmp >> 32;
-    return ft;
+    return {
+        .dwLowDateTime = static_cast<ULONG>(tmp),
+        .dwHighDateTime = static_cast<DWORD>(tmp >> 32)
+    };
 }
 
 static std::string QuoteAndConvert(const std::wstring& inc)

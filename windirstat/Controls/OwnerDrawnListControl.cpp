@@ -78,7 +78,7 @@ void COwnerDrawnListItem::DrawLabel(const COwnerDrawnListControl* list, CImageLi
     rcLabel.bottom = rcRest.bottom - LABEL_Y_MARGIN;
 
     CSetBkMode bk(pdc, TRANSPARENT);
-    COLORREF textColor = ::GetSysColor(COLOR_WINDOWTEXT);
+    COLORREF textColor = GetItemTextColor();
     if (width == nullptr && (state & ODS_SELECTED) != 0 && (list->HasFocus() || list->IsShowSelectionAlways()))
     {
         // Color for the text in a highlighted item (usually white)
@@ -92,12 +92,6 @@ void COwnerDrawnListItem::DrawLabel(const COwnerDrawnListControl* list, CImageLi
         }
         // Fill the selection rectangle background (usually dark blue)
         pdc->FillSolidRect(selection, list->GetHighlightColor());
-    }
-    else
-    {
-        // Use the color designated for this item
-        // This is currently only for encrypted and compressed items
-        textColor = GetItemTextColor();
     }
 
     // Set text color for device context
@@ -221,7 +215,7 @@ int COwnerDrawnListControl::GetRowHeight() const
 void COwnerDrawnListControl::ShowGrid(const bool show)
 {
     m_ShowGrid = show;
-    if (::IsWindow(m_hWnd))
+    if (IsWindow(m_hWnd))
     {
         InvalidateRect(nullptr);
     }
@@ -230,7 +224,7 @@ void COwnerDrawnListControl::ShowGrid(const bool show)
 void COwnerDrawnListControl::ShowStripes(const bool show)
 {
     m_ShowStripes = show;
-    if (::IsWindow(m_hWnd))
+    if (IsWindow(m_hWnd))
     {
         InvalidateRect(nullptr);
     }
@@ -239,7 +233,7 @@ void COwnerDrawnListControl::ShowStripes(const bool show)
 void COwnerDrawnListControl::ShowFullRowSelection(const bool show)
 {
     m_ShowFullRowSelect = show;
-    if (::IsWindow(m_hWnd))
+    if (IsWindow(m_hWnd))
     {
         InvalidateRect(nullptr);
     }
@@ -278,7 +272,7 @@ COLORREF COwnerDrawnListControl::GetHighlightColor() const
 {
     if (HasFocus())
     {
-        return ::GetSysColor(COLOR_HIGHLIGHT);
+        return GetSysColor(COLOR_HIGHLIGHT);
     }
 
     return GetNonFocusHighlightColor();
@@ -288,7 +282,7 @@ COLORREF COwnerDrawnListControl::GetHighlightTextColor() const
 {
     if (HasFocus())
     {
-        return ::GetSysColor(COLOR_HIGHLIGHTTEXT);
+        return GetSysColor(COLOR_HIGHLIGHTTEXT);
     }
 
     return GetNonFocusHighlightTextColor();
@@ -338,7 +332,7 @@ COLORREF COwnerDrawnListControl::GetItemSelectionTextColor(const int i) const
         return GetHighlightTextColor();
     }
 
-    return ::GetSysColor(COLOR_WINDOWTEXT);
+    return GetSysColor(COLOR_WINDOWTEXT);
 }
 
 int COwnerDrawnListControl::GetTextXMargin() const
@@ -373,7 +367,7 @@ void COwnerDrawnListControl::InitializeColors()
     constexpr double diff      = 0.07; // Try to alter the brightness by diff.
     constexpr double threshold = 1.04; // If result would be brighter, make color darker.
 
-    m_WindowColor = ::GetSysColor(COLOR_WINDOW);
+    m_WindowColor = GetSysColor(COLOR_WINDOW);
 
     double b = CColorSpace::GetColorBrightness(m_WindowColor);
 
@@ -587,7 +581,7 @@ BOOL COwnerDrawnListControl::OnEraseBkgnd(CDC* pDC)
 
     CRect rcClient;
     GetClientRect(rcClient);
-    const COLORREF bgcolor = ::GetSysColor(COLOR_WINDOW);
+    const COLORREF bgcolor = GetSysColor(COLOR_WINDOW);
 
     // draw blank space on right
     CRect fillRight(tableRight, rcClient.top, rcClient.right, rcClient.bottom);

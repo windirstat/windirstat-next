@@ -148,7 +148,7 @@ protected:
     DECLARE_DYNCREATE(CMainFrame)
 
     void InitialShowWindow();
-    void InvokeInMessageThread(std::function<void()> callback);
+    void InvokeInMessageThread(std::function<void()> callback) const;
 
     void RestoreTreeMapView();
     void RestoreExtensionView();
@@ -172,8 +172,9 @@ protected:
     bool IsScanSuspended() const;
 
     void UpdateProgress();
-    void UpdateDynamicMenuItems(CMenu* menu) const;
+    void UpdateDynamicMenuItems(const CMenu* menu) const;
     std::vector<CItem*> GetAllSelectedInFocus() const;
+    CMenu* LocateNamedMenu(const CMenu* menu, const std::wstring & subMenuText, bool clear = false) const;
 
     void SetLogicalFocus(LOGICAL_FOCUS lf);
     LOGICAL_FOCUS GetLogicalFocus() const;
@@ -237,5 +238,5 @@ protected:
 
 public:
     static CMainFrame* Get() { return s_Singleton; }
-    BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = nullptr, CCreateContext* pContext = nullptr) override;
+    BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL) override;
 };

@@ -24,6 +24,7 @@
 #include "SelectDrivesDlg.h"
 #include "BlockingQueue.h"
 #include "Options.h"
+#include "CommonHelpers.h"
 
 #include <unordered_map>
 #include <vector>
@@ -76,6 +77,9 @@ enum
 //
 class CDirStatDoc final : public CDocument
 {
+public:
+    static CDirStatDoc* GetDocument();
+
 protected:
     CDirStatDoc(); // Created by MFC only
     DECLARE_DYNCREATE(CDirStatDoc)
@@ -121,7 +125,6 @@ protected:
 
     static void OpenItem(const CItem* item, const std::wstring& verb = {});
 
-protected:
     void RecurseRefreshReparsePoints(CItem* items);
     std::vector<CItem*> GetDriveItems() const;
     void RefreshRecyclers() const;
@@ -141,9 +144,12 @@ protected:
     CItem* PopReselectChild();
     void ClearReselectChildStack();
     bool IsReselectChildAvailable() const;
+    static CompressionAlgorithm CompressionIdToAlg(UINT id);
     static bool FileTreeHasFocus();
     static bool DupeListHasFocus();
     static std::vector<CItem *> GetAllSelected();
+
+    static CDirStatDoc* _theDocument;
 
     bool m_ShowFreeSpace; // Whether to show the <Free Space> item
     bool m_ShowUnknown;   // Whether to show the <Unknown> item
@@ -162,7 +168,8 @@ protected:
 
     CList<CItem*, CItem*> m_ReselectChildStack; // Stack for the "Re-select Child"-Feature
 
-    std::unordered_map<std::wstring, BlockingQueue<CItem*>> queues; // The scanning and thread queue
+    std::unordered_map<std::wstring, BlockingQueue<CItem*>> m_queues; // The scanning and thread queue
+    std::thread* m_thread = nullptr; // Wrapper thread so we do not occupy the UI thread
 
     DECLARE_MESSAGE_MAP()
     afx_msg void OnRefreshSelected();
@@ -172,6 +179,7 @@ protected:
     afx_msg void OnEditCopy();
     afx_msg void OnCleanupEmptyRecycleBin();
     afx_msg void OnUpdateCentralHandler(CCmdUI* pCmdUI);
+    afx_msg void OnUpdateCompressionHandler(CCmdUI* pCmdUI);
     afx_msg void OnUpdateViewShowFreeSpace(CCmdUI* pCmdUI);
     afx_msg void OnViewShowFreeSpace();
     afx_msg void OnUpdateViewShowUnknown(CCmdUI* pCmdUI);
@@ -194,8 +202,3 @@ protected:
     afx_msg void OnScanStop();
     afx_msg void OnContextMenuExplore(UINT nID);
 };
-
-//
-// The document is needed in many places.
-//
-extern CDirStatDoc* GetDocument();
